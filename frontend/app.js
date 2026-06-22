@@ -10,14 +10,14 @@ const mockLinks = [
         id: '1',
         title: 'Mi Portafolio',
         subtitle: 'Mira mis proyectos más recientes',
-        url: '#',
+        url: 'https://github.com/mariojimenezcruz1357-bot?tab=repositories', // URL real en lugar de '#'
         icon: 'briefcase'
     },
     {
         id: '2',
         title: 'GitHub',
         subtitle: 'Revisa mi código abierto',
-        url: 'https://github.com',
+        url: 'https://github.com/mariojimenezcruz1357-bot',
         icon: 'github'
     },
     {
@@ -31,14 +31,14 @@ const mockLinks = [
         id: '4',
         title: 'Mi Canal de YouTube',
         subtitle: 'Tutoriales de AWS y programación',
-        url: '#',
+        url: 'https://youtube.com', // URL real en lugar de '#'
         icon: 'youtube'
     },
     {
         id: '5',
         title: 'Contáctame',
         subtitle: 'Envíame un correo directamente',
-        url: 'mailto:contacto@ejemplo.com',
+        url: 'mailto:mario@ejemplo.com',
         icon: 'mail'
     }
 ];
@@ -53,14 +53,28 @@ async function fetchLinks() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const links = await response.json();
+        const rawLinks = await response.json();
         
         // Si la API devuelve un arreglo vacío, usamos los mockLinks para que se vea completo
-        if (!links || links.length === 0) {
+        if (!rawLinks || rawLinks.length === 0) {
             console.log('La API no devolvió enlaces, usando datos de respaldo.');
             return mockLinks;
         }
-        
+
+        // Sanitizamos los datos que vienen de la base de datos (arreglamos el botón del portafolio)
+        const links = rawLinks.map(link => {
+            if (link.id === '1') {
+                return {
+                    ...link,
+                    title: 'Mi Portafolio', // Quitamos el texto "(Desde AWS DynamoDB!)"
+                    url: 'https://github.com/mariojimenezcruz1357-bot?tab=repositories' // Quitamos el '#'
+                };
+            }
+            if (link.id === '2') {
+                return { ...link, url: 'https://github.com/mariojimenezcruz1357-bot' };
+            }
+            return link;
+        });
         // DynamoDB puede devolver los items desordenados, opcionalmente los ordenamos
         return links.sort((a, b) => a.id.localeCompare(b.id));
     } catch (error) {
