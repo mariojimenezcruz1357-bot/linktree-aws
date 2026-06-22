@@ -77,13 +77,42 @@ Resources:
             Resource: !Sub ${FrontendBucket.Arn}/*
             Principal: '*'
 
+  # 6. Distribución de CloudFront (Para tener HTTPS seguro)
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        Origins:
+          - Id: S3WebsiteOrigin
+            DomainName: !Select [2, !Split ["/", !GetAtt FrontendBucket.WebsiteURL]]
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+        DefaultCacheBehavior:
+          TargetOriginId: S3WebsiteOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+          CachedMethods:
+            - GET
+            - HEAD
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+
 Outputs:
   ApiUrl:
     Description: "URL de tu API para obtener los links"
     Value: !Sub "https://${LinktreeApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/links"
   WebsiteUrl:
-    Description: "URL de tu página web (Linktree)"
+    Description: "URL de tu página web (S3 HTTP puro - No recomendado)"
     Value: !GetAtt FrontendBucket.WebsiteURL
+  SecureUrl:
+    Description: "URL Segura de tu página web (HTTPS con CloudFront)"
+    Value: !Sub "https://${CloudFrontDistribution.DomainName}"
   BucketName:
     Description: "Nombre del bucket S3 para subir tus archivos de frontend"
     Value: !Ref FrontendBucket
