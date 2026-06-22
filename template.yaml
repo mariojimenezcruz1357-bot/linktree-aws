@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Linktree Clone - Serverless Backend and Frontend Hosting
+
+Globals:
+  Function:
+    Timeout: 5
+    MemorySize: 128
+
+Resources:
+  # 1. Base de Datos (DynamoDB)
+  LinksTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  # 2. Función Backend (Lambda) + API Gateway
+  LinksFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: app.handler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref LinksTable
+      Policies:
+        # Le damos permiso a la Lambda de leer la tabla de DynamoDB
+        - DynamoDBReadPolicy:
+            TableName: !Ref LinksTable
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /links
+            Method: get
+            RestApiId: !Ref LinktreeApi
+
+  # 3. API Gateway (Puerta de entrada pública) con CORS configurado
+  LinktreeApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,OPTIONS'"
+        AllowHeaders: "'Content-Type'"
+        AllowOrigin: "'*'"
+
+  # 4. S3 Bucket para el Frontend (Página web estática)
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      WebsiteConfiguration:
+        IndexDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  # 5. Política para hacer el S3 Bucket público y que la gente pueda ver tu web
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Statement:
+          - Action: s3:GetObject
+            Effect: Allow
+            Resource: !Sub ${FrontendBucket.Arn}/*
+            Principal: '*'
+
+Outputs:
+  ApiUrl:
+    Description: "URL de tu API para obtener los links"
+    Value: !Sub "https://${LinktreeApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/links"
+  WebsiteUrl:
+    Description: "URL de tu página web (Linktree)"
+    Value: !GetAtt FrontendBucket.WebsiteURL
+  BucketName:
+    Description: "Nombre del bucket S3 para subir tus archivos de frontend"
+    Value: !Ref FrontendBucket

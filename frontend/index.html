@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Linktree | AWS Cloud</title>
+    <meta name="description" content="Mis enlaces profesionales impulsados por AWS Serverless">
+    <link rel="stylesheet" href="style.css">
+    <!-- Fuentes modernas de Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Iconos -->
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+    <!-- Partículas de fondo animadas (simuladas con CSS en el style) -->
+    <div class="background-wrapper">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <main class="container">
+        <header class="profile-section">
+            <div class="profile-image-container">
+                <img src="https://ui-avatars.com/api/?name=AWS+Dev&background=random&color=fff&size=150" alt="Foto de perfil" class="profile-image">
+                <div class="status-badge"></div>
+            </div>
+            <h1 class="profile-name">Dev AWS</h1>
+            <p class="profile-bio">Aprendiendo Cloud & Serverless 🚀</p>
+        </header>
+
+        <section class="links-section" id="links-container">
+            <!-- Los links se inyectarán aquí vía JavaScript -->
+            <div class="loader">
+                <i data-feather="loader" class="spin"></i> Cargando enlaces...
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>Powered by <strong>AWS Serverless</strong> & <strong>GitHub Actions</strong></p>
+        </footer>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
