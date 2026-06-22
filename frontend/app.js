@@ -61,8 +61,12 @@ async function fetchLinks() {
             return mockLinks;
         }
 
+        // Ordenar los enlaces por ID para asegurarnos de que el orden sea correcto
+        // ya que DynamoDB Scan puede devolverlos desordenados
+        const sortedLinks = rawLinks.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
         // Sanitizamos los datos que vienen de la base de datos (arreglamos el botón del portafolio)
-        const links = rawLinks.map(link => {
+        const links = sortedLinks.map(link => {
             if (link.id === '1') {
                 return {
                     ...link,

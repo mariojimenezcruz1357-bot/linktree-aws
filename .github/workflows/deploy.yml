@@ -40,6 +40,18 @@ jobs:
             --resolve-s3 \
             --region us-east-1
 
+      - name: Seed DynamoDB with Initial Data
+        run: |
+          TABLE_NAME=$(aws cloudformation describe-stack-resource --stack-name mi-linktree-stack --logical-resource-id LinksTable --query "StackResourceDetail.PhysicalResourceId" --output text)
+          echo "Poblando tabla DynamoDB: $TABLE_NAME"
+          
+          # Insertar o actualizar links iniciales
+          aws dynamodb put-item --table-name $TABLE_NAME --item '{"id": {"S": "1"}, "title": {"S": "Mi Portafolio"}, "subtitle": {"S": "Proyectos y experiencia"}, "url": {"S": "https://mariojimenez.com"}, "icon": {"S": "briefcase"}}'
+          aws dynamodb put-item --table-name $TABLE_NAME --item '{"id": {"S": "2"}, "title": {"S": "GitHub"}, "subtitle": {"S": "Revisa mi código abierto"}, "url": {"S": "https://github.com/mariojimenezcruz1357-bot"}, "icon": {"S": "github"}}'
+          aws dynamodb put-item --table-name $TABLE_NAME --item '{"id": {"S": "3"}, "title": {"S": "LinkedIn"}, "subtitle": {"S": "Conecta conmigo"}, "url": {"S": "https://linkedin.com"}, "icon": {"S": "linkedin"}}'
+          aws dynamodb put-item --table-name $TABLE_NAME --item '{"id": {"S": "4"}, "title": {"S": "Twitter"}, "subtitle": {"S": "Mis pensamientos sobre Cloud"}, "url": {"S": "https://twitter.com"}, "icon": {"S": "twitter"}}'
+          aws dynamodb put-item --table-name $TABLE_NAME --item '{"id": {"S": "5"}, "title": {"S": "Contáctame"}, "subtitle": {"S": "Hablemos de tu próximo proyecto"}, "url": {"S": "mailto:hola@mariojimenez.com"}, "icon": {"S": "mail"}}'
+
       - name: Deploy Frontend to S3
         run: |
           # Obtener el nombre del bucket de los outputs de CloudFormation
