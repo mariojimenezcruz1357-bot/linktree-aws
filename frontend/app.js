@@ -38,15 +38,12 @@ const mockLinks = [
 // Función para simular una carga desde AWS (con un pequeño delay)
 async function fetchLinks() {
     try {
-        // TODO: Aquí pondremos el fetch() a nuestra API Gateway de AWS
-        // const response = await fetch('URL_DE_TU_API_AWS');
-        // const links = await response.json();
+        // Llamada real a tu API Gateway en AWS
+        const response = await fetch('https://1fowuvoj4h.execute-api.us-east-1.amazonaws.com/Prod/links');
+        const links = await response.json();
         
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(mockLinks);
-            }, 1000); // Simulamos 1 segundo de carga
-        });
+        // DynamoDB puede devolver los items desordenados, opcionalmente los ordenamos
+        return links.sort((a, b) => a.id.localeCompare(b.id));
     } catch (error) {
         console.error('Error al obtener los links:', error);
         return [];
