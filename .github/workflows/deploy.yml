@@ -39,3 +39,12 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --resolve-s3 \
             --region us-east-1
+
+      - name: Deploy Frontend to S3
+        run: |
+          # Obtener el nombre del bucket de los outputs de CloudFormation
+          BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name mi-linktree-stack --query "Stacks[0].Outputs[?OutputKey=='BucketName'].OutputValue" --output text)
+          echo "Desplegando frontend en el bucket: $BUCKET_NAME"
+          
+          # Sincronizar la carpeta frontend con el bucket S3
+          aws s3 sync frontend/ s3://$BUCKET_NAME --delete
